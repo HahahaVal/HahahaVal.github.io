@@ -1,4 +1,6 @@
 ---
-layout:post
-title:文章模板
---- 
+title: 模板
+date: 2021-12-28 15:08:20 +/-TTTT
+categories: [TOP_CATEGORIE, SUB_CATEGORIE]
+tags: [test]
+---
