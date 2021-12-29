@@ -1,0 +1,152 @@
+---
+title: ATB回合制战斗
+date: 2021-12-29 20:40:20 +/-TTTT
+categories: [战斗]
+tags: [战斗,ATB,技能,Buff]
+---
+
+##### 战斗流程
+ * 玩家所在agent服务发起战斗请求，获取动态的战斗服务，由战斗池服务根据唯一key分配一个相对空闲的战斗服务返回
+ * 玩家所在agent服务注册到该战斗服务中，在战斗服务中创建playerObj，并与agent的玩家对象绑定，战斗的协议由agent服务转发到战斗服务处理
+ * agent构造战斗所需要的数据传递到战斗服，由战斗服根据类型创建战斗对象和实体对象
+ * 战斗结束后，通知agent服务战斗结果，释放战斗池服务的唯一key，取消agent服务到战斗服的注册，解除战斗服playerObj与agent玩家对象的绑定，并移除战斗服务中的playerObj
+ ![battleProces](/src/ATB回合制战斗/1.jpg)
+ 
+* * *
+
+##### ATB回合制拉条机制
+ * 基础公式：vt=s，路程s（ATB回合制概念中的行动条定值），速度v（ATB回合制概念中用来衡量战斗单位出手的顺序speed值）
+ * 核心思路：行动条实际上是一个环形跑道，回合出手判定获取当前行动对象时，每个战斗对象计算出自身已跑的路程s1，用总路程-s1得到自身剩余路程s2，s2/v=t，根据t值进行排序，t值最小的战斗对象最先出手，对象出手后回到起跑原点，其他对象根据最小t累加路程s1。
+ * 抛弃的思路：基于状态驱动，每次出手后根据每个对象最新的speed，重新计算出下一个应该出手的对象和时间，再设置定时器。
+
+* * *
+
+##### 战斗主循环
+ * 每个战斗回合实际上由固定的几个状态组成，由此决定战斗逻辑的主流程可使用有限状态机实现
+```
+BattleBegin = 1,    		--战斗开始（执行被动树）
+CalNextActionObj = 2,   	--获得下一个出手角色
+RoundBegin = 3,     		--回合开始
+ActionBeforeCountBf = 4,    --行动前的count结算前 （执行被动树，推送协议）
+ActionBeforeCountAf = 12,   --行动前的count结算后 （执行被动树，推送协议）
+SelectSkillBefore = 5,      --选择技能前（暂停状态机）
+ReleaseSkillBefore = 6,     --释放技能前（执行被动树）
+ReleaseSkillAfter = 7,      --释放技能后（执行被动树）
+CalCountBefore = 8,     	--行动后的count结算前（执行被动树）
+CalCountAfter = 9,      	--行动后的count结算后（执行被动树）
+RoundEnd = 10,      		--回合结束(推送协议)
+BattleEnd = 11,	    		--战斗结束
+```
+ * 每场战斗都有一个循环Update执行对应状态的逻辑函数
+```
+function BattleObject:Update()
+    while true do
+        --状态机关闭
+        if self.fsmClose then
+            return
+        end
+        local funcName = BattleStateType[self.m_state]
+        local func = self[funcName]
+        xpcall(func, GTraceback, self)
+    end
+end
+```
+ * 每个状态逻辑函数处理特定的战斗逻辑，并都会指向下一个状态
+```
+function BattleObject:SetState(state)
+    self.m_state = state
+end
+function BattleObject:BattleBegin()
+    self:RunPassiveSkillTree()
+    self:SetState(BattleStateType.CalNextActionObj)
+end
+```
+ * 当需要玩家操作时，则需要暂停运行状态机（使用协程实现），当玩家下达操作指令后，重新唤醒状态机继续执行。需要定时器检查玩家超时操作，超时则AI行为树去选定技能和目标，并重新唤醒状态机
+ 
+ * * *
+ 
+ ##### 技能的实现
+技能分为主动技能和被动技能。主动技能由玩家下达指令释放或者执行AI行为树释放，而被动技能则是在状态机特定的状态处理函数中，每个实体根据各自的被动行为树Id执行一遍行为树逻辑，从而决定是否释放被动技能，例如：
+![skill](/src/ATB回合制战斗/2.jpg)
+
+无论是被动技能还是主动技能，其逻辑处理都应该是一致的。
+ * hit部分：hit只做伤害的计算，支持多段伤害的配置，每一段的伤害配置都应该有独立的目标选择树
+ * 技能可选目标：通过执行行为树逻辑得到该技能的可选目标
+ * 技能表现：主要跟hit部分对应起来，客户端根据skillShow读取技能编辑器中对应的配置去表现，例如在释放技能后的0.2s后移动到敌人面前，0.4s后播放特效视频。
+ * 技能效果：效果全部由buff实现。根据不同的效果，需要在hit前，hit中，hit后这几个时机增加buff。
+ * 召唤物：释放技能后根据怪物Id生成召唤物，增加对应的实体对象，怪物属性可以是读取配置的，也可以是继承施法者。
+ * 驱散：释放技能后根据驱散类型（例如根据buffId，或者buffTag），移除目标身上的buff。
+ * 偷取：释放技能后根据偷取类型（例如根据buffId，或者buffTag），首先移除目标身上的buff，并把对应的buffId加到释放者身上。
+ * 技能cd：使用技能后将cd重置为const，每个回合将cd-1，当cd>0时代表可用
+
+* * *
+
+##### Buff的实现
+buff的增加，生效，移除是互相独立的逻辑
+ * buff的增加：buff增加的时机分为技能释放hit前，技能释放hit中，技能释放hit后。buff增加时注册对应的生效事件和移除的事件到战斗battleObj中。
+ * buff的生效：使用事件触发，当battleObj触发了特定事件，则执行buff对应的OnEffect函数。
+ * buff的移除：使用事件触发，当battleObj触发了特定事件，则执buff对应的OnRemove函数，并将该buff从实体对象中移除并取消注册。执行OnRemove函数的时候根据keepEffect决定是否保留buff修改的属性效果
+ * buff的效果：所有的buff都只影响实体属性，配置提供接口给策划计算属性的变化值，技能的效果都抽象成属性去实现。例如眩晕效果，策划自定义一个眩晕属性，释放技能让受击者添加一个眩晕buff，将其眩晕属性置1，眩晕效果被驱散或者移除后，将其眩晕属性置0。例如标记类效果，策划自定义一个冰冻印记和冰冻爆裂属性，释放者每次攻击冰冻buff都让敌人身上的冰冻印记属性+1，冰冻印记达到3层后，跟随buff（冰冻爆裂buff与冰冻buff相同tag，优先级更高）被增加，移除冰冻印记buff并造成伤害。
+ * buff的tag：每个buff都有多个标签，这个标签可以是策划自定义。当同标签类型buff叠加时，根据优先级覆盖，同优先级则根据最大限制数刷新buff。
+ * buff的跟随：buff跟随的时机分为主buff增加时、主buff移除时、主buff生效时，主buff达到指定层数时，主buff满足条件则概率添加跟随buff，根据配置跟随主buff移除
+ * buff的表现：buff的表现包括特效表现buffShow（播放时长配置决定），buff图标和buff飘字。
+
+* * *
+
+##### 目标选择
+使用行为树实现目标的选择，提供一些逻辑节点给策划搭配使用
+![targetSelect](/src/ATB回合制战斗/3.jpg)
+
+* * *
+##### 事件系统
+buff的效果一般都基于多种特定的条件下才触发，通过订阅者模式可解耦代码逻辑。
+ * 事件处理器的数据结构
+```
+BattleObject.eventHandles[event] = { buffId1 = buffObj, }
+```
+ * 订阅事件：当buff增加时，根据唯一的buffId注册事件到战斗对象battleObj中
+```
+function BattleObject:SubEvent(event, handlerBuff)
+```
+ * 发布事件：当战斗流程中触发了某些条件（例如角色死亡时，回合结束时），则发布对应的事件，执行所有已注册该事件的buffObj执行OnEvent函数
+```
+function BattleObject:PubEvent(event, eventArgs, buffEffects)
+```
+ * 取消订阅事件：buff被移除时需要取消订阅
+```
+function BattleObject:UnSubEvent(event, handlerBuff)
+```
+
+* * *
+
+##### 属性实现
+属性规划为培养属性以及战斗属性，
+ * 根据培养系统能影响到战斗的属性都规划为培养属性：血量上限，速度，攻击等。
+ * 只会在战斗中才衍生出来的属性为战斗属性：觉醒，束缚，护盾，当前血量，愤怒印记等。
+
+每个属性计算的维度都应该不受buff先后顺序的影响，属性常规的运算公式：
+```
+（base + addbase1 + addbase2）* （1 + 百分比add1 + 百分比add2）
+```
+
+* * * 
+
+##### 数据的传递和交互
+服务端与客户端的数据交互以回合为单位：
+ * 选择主动技能前服务端需要推送战前数据，包含当前回合出手的实体对象，行动条进度，出手前触发的被动技能结果和buff效果。
+ * 回合出手后服务端需要推送主动技能的结果数据，包含被动技能结果和buff数据
+ * 当战斗结束后，服务端主动推送战斗结果
+ 
+* * *
+
+##### 战斗断线重连
+当玩家刚断开连接时，在agent服务中的玩家对象仍然存在，战斗服务对此不需要做任何处理，战斗服务推送的数据会失败，服务端会缓存这部分数据。
+ * 若重连成功，agent服务的玩家对象替换新旧连接的fd，补发缓存的那部分数据。
+ * 若超时依然没重连成功，agent服务的玩家对象执行下线逻辑，通知战斗服务触发战斗结束。战斗服务通知agent服务战斗结果，释放战斗池服务的唯一key，取消agent服务到战斗服的注册，解除战斗服playerObj与agent玩家对象的绑定，并移除战斗服务中的playerObj
+ * 若客户端是kill掉进程尝试重登，则在agent服务中的玩家对象会先执行下线逻辑，但此时不会通知战斗服务，而是记录战斗服务的唯一key，同时取消agent玩家对象与战斗服务playerObj的绑定，战斗服务判断取消注册的原因如果为重登，则不移除playerObj，只是将playerObj中的agent服务地址置空。下线逻辑执行完成后，玩家对象重新注册新的agent到原来的战斗服务，将新的agent服务地址赋予给原来旧playerObj
+ 
+ * * *
+ 
+ ##### 战斗的特殊机制
+特殊战斗玩法，例如pvp战斗需要在第N回合全体增加攻击，这种额外玩法带来的特殊机制，通过在战斗中创建一个空逻辑实体执行行为树去实现，这个空逻辑实体不参与战斗的运算，只执行行为树逻辑
+多轮战斗，每个场次的战斗都是独立的battleObj，通过数据的继承去实现多轮战斗，这样做的好处是环境隔离，场次间的战斗不会耦合。
