@@ -168,3 +168,6 @@ jekyll-archives:
   permalinks:
     tag: /tags/:name/
     category: /categories/:name/
+
+plugins:
+  - jekyll-sitemap    #jekyll的站点地图插件，用于生成站点地图
