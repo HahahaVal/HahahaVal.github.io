@@ -10,7 +10,7 @@ tags: [战斗,ATB,技能,Buff]
  * 玩家所在agent服务注册到该战斗服务中，在战斗服务中创建playerObj，并与agent的玩家对象绑定，战斗的协议由agent服务转发到战斗服务处理
  * agent构造战斗所需要的数据传递到战斗服，由战斗服根据类型创建战斗对象和实体对象
  * 战斗结束后，通知agent服务战斗结果，释放战斗池服务的唯一key，取消agent服务到战斗服的注册，解除战斗服playerObj与agent玩家对象的绑定，并移除战斗服务中的playerObj
- ![battleProces](./src/ATB回合制战斗/1.png)
+ ![battleProces](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/ATB%E5%9B%9E%E5%90%88%E5%88%B6%E6%88%98%E6%96%97/1.png?raw=true)
  
 * * *
 
@@ -67,7 +67,7 @@ end
  
  ##### 技能的实现
 技能分为主动技能和被动技能。主动技能由玩家下达指令释放或者执行AI行为树释放，而被动技能则是在状态机特定的状态处理函数中，每个实体根据各自的被动行为树Id执行一遍行为树逻辑，从而决定是否释放被动技能，例如：
-![skill](./src/ATB回合制战斗/2.png)
+![skill](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/ATB%E5%9B%9E%E5%90%88%E5%88%B6%E6%88%98%E6%96%97/2.png?raw=true)
 
 无论是被动技能还是主动技能，其逻辑处理都应该是一致的。
  * hit部分：hit只做伤害的计算，支持多段伤害的配置，每一段的伤害配置都应该有独立的目标选择树
@@ -95,7 +95,7 @@ buff的增加，生效，移除是互相独立的逻辑
 
 ##### 目标选择
 使用行为树实现目标的选择，提供一些逻辑节点给策划搭配使用
-![targetSelect](./src/ATB回合制战斗/3.png)
+![targetSelect](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/ATB%E5%9B%9E%E5%90%88%E5%88%B6%E6%88%98%E6%96%97/3.png?raw=true)
 
 * * *
 ##### 事件系统
