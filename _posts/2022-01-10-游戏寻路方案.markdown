@@ -38,3 +38,5 @@ tags: [寻路方案]
  * 服务端加载的源地图数据需要在多线程内共享并且加锁，避免浪费内存。
  * 调用主体是lua，so库返回包含源数据指针和副本数据指针的userdata，副本数据指针默认指向源数据。
  * 如果需要动态改变地图的格子是否可走，则需要拷贝源地图数据，创建地图数据的副本，并改变副本数据指针的指向，后续的所有操作都基于副本数据，gc时把副本数据清理，源数据常驻。
+ * ![data](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/%E5%AF%BB%E8%B7%AF%E6%96%B9%E6%A1%88/data.png?raw=true)
+ 
