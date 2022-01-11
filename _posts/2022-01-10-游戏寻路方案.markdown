@@ -15,14 +15,14 @@ tags: [寻路方案]
  * 客户端在unity里根据navmesh，生成每0.5米一个高度点的高度图给服务器用，可以有多层高度（例如拱桥）
  * 服务器通过高度图，对落差超过一定值的相邻两个格子设置为不可走，这样得出一个可走图，用可走图来做寻路，如果是有多层高度，任意一个高度满足可走，则标识为可走。
  * 服务端是可以分别站在落差比较大的两个相邻格子上（高度图上）的，但是可走图上是标识为不可走的格子，所以开始的时候判断一下起始点和终点，如果是不可走的位置则需要判定一下周围最近可走格为新的寻路起始点或终点
-![9cba4691a82786c20b3a3f1e704f1f57.png](en-resource://database/1846:1)
+![grid](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/%E5%AF%BB%E8%B7%AF%E6%96%B9%E6%A1%88/grid.png?raw=true)
 
 
 **wayPoint**
 在地图编辑器中直接标记一些路点，路点之间不能存在障碍，寻路只能在这些已知的路线进行，因此比较适合NPC固定路线移动。
   * 优点：占用极少的内存和计算消耗
   * 缺点：每张地图都需要人工去编辑复杂的路点，工作量大。
-![f5bba4e893587fa875ba44dd1461d9ad.png](en-resource://database/1852:1)
+![wayPoint](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/%E5%AF%BB%E8%B7%AF%E6%96%B9%E6%A1%88/way.png?raw=true)
 
 
 
@@ -30,5 +30,5 @@ tags: [寻路方案]
 导航网格是由多个poly组成，同一个poly中的两点在忽略高度的情况下是可以直达的，而两点位于不同的poly，则利用导航网格配合A\*算法得到经过的poly，再算出具体路径，同时引入了地图高度，比较适合3d地图。
  * 优点：更为精准表达地图，poly会比grid数量少，占用的内存会少
  * 缺点：unity的navmesh可以导出寻路网格，但是和recastnavigation库不完全兼容，因此可以采用第三方插件导出寻路网格[第三方插件](https://github.com/kbengine/unity3d_nav_critterai)
- ![e7b565dbd3c3f3b76959085153a93b95.jpeg](en-resource://database/1850:1)
+![recastnavigation](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/%E5%AF%BB%E8%B7%AF%E6%96%B9%E6%A1%88/nav.jpg?raw=true)
  
