@@ -1,0 +1,73 @@
+---
+title: 游戏寻路方案
+date: 2022-01-09 20:40:20 +/-TTTT
+categories: [寻路]
+tags: [寻路方案]
+---
+
+##### 曼哈顿距离
+图形中只允许朝上下左右四个方向移动
+ ![612f2ba321f423cead2033c47c3c2b82.png](en-resource://database/1872:1)
+
+计算公式：设格子的单位长度为D
+```lua
+(|A.x-B.x|+|A.y-B.y|)*D
+```
+
+* * *
+
+##### 欧几里得距离
+图形中允许朝任何方向移动
+ ![0f1d52571868ee0711358282faccd659.png](en-resource://database/1874:1)
+
+计算公式：根据勾股定理求斜边。设格子的单位长度为D
+```lua
+dx=|A.x-B.x|
+dy=|A.y-B.y|
+Dsqrt(dxdx+dy*dy)
+```
+
+* * *
+
+##### 对角线距离
+图形中允许朝八个方向移动
+ ![e41b218f605bd7e75b4322311784cc53.png](en-resource://database/1876:1)
+
+计算公式：设格子的单位长度为D，那么斜向移动一单位距离，根据勾股定理，求腰为D的等腰直角三角形的斜边，即√2D。
+```lua
+dx=|A.x-B.x|
+dy=|A.y-B.y|
+D*(dx+dy)+(√2D-2D)*min(dx,dy)
+```
+计算机处理浮点数比较耗费资源，可以在损失一定精度的情况下进行优化。√2≈1.4，假设D=10，则√2D≈14，将浮点数转换成整数计算
+
+* * *
+
+##### A*算法
+估算公式：
+```lua
+f(n)=g(n)+h(n)
+```
+ * g(n)是当前节点到起点的真实距离，g(n)的计算方法：前一个节点的g(n)值加上两节点之间的距离d
+ * h(n)是当前节点到终点的“估算距离”（无视障碍物情况下的预测值，也可理解成该点到终点的直线距离的值）
+ 
+ 待遍历的节点集合：open_list
+ 节点的状态：open（待处理），close（已处理），unknown（初始）
+ 前置节点指针：parent
+ 
+ 算法步骤：
+ * find_path_init：初始化open_list，并将起点加入open_list中
+ * find_path_step：
+   * 取出open_list中f值最小的节点node，设置状态为close
+   * 获取并遍历节点node的邻居节点（4/8方向），邻居节点必须为可走
+     * 若邻居节点状态为unknown，则计算邻居节点的g，f并设置parent指针为node，将邻居节点加入到open_list中
+     * 若邻居节点状态为open，根据node的g+d得到newg，当newg<邻居节点的g时，设置parent指针为node
+   * 循环find_path_step的操作，直到open_list为空或者node等于终点。
+ * find_path_finish：搜到终点后通过parent指针，便能从终点一步步回溯通过的路径点。
+
+优化思路：
+ * open_list需要频繁加入节点，并且每次都需要取出最小值，可以使用最小堆实现。
+ * 传统的有close_list的实现，可以使用节点的状态变量去判断
+
+
+
