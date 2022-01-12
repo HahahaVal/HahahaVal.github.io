@@ -7,7 +7,7 @@ tags: [寻路方案]
 
 ##### 曼哈顿距离
 图形中只允许朝上下左右四个方向移动
- ![612f2ba321f423cead2033c47c3c2b82.png](en-resource://database/1872:1)
+ ![manhadun.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Astar/manhadun.png?raw=true)
 
 计算公式：设格子的单位长度为D
 ```lua
@@ -18,7 +18,7 @@ tags: [寻路方案]
 
 ##### 欧几里得距离
 图形中允许朝任何方向移动
- ![0f1d52571868ee0711358282faccd659.png](en-resource://database/1874:1)
+ ![oujilide.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Astar/oujilide.png?raw=true)
 
 计算公式：根据勾股定理求斜边。设格子的单位长度为D
 ```lua
@@ -31,7 +31,7 @@ Dsqrt(dxdx+dy*dy)
 
 ##### 对角线距离
 图形中允许朝八个方向移动
- ![e41b218f605bd7e75b4322311784cc53.png](en-resource://database/1876:1)
+ ![duijiaoxian.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Astar/duijiaoxian.png?raw=true)
 
 计算公式：设格子的单位长度为D，那么斜向移动一单位距离，根据勾股定理，求腰为D的等腰直角三角形的斜边，即√2D。
 ```lua
