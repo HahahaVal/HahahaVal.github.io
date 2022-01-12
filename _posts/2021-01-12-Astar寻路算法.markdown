@@ -7,7 +7,7 @@ tags: [A*,曼哈顿距离,欧几里得距离,对角线距离]
 
 ##### 曼哈顿距离
 图形中只允许朝上下左右四个方向移动
- ![manhadun.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Astar/manhadun.png?raw=true)
+ * ![manhadun.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Astar/manhadun.png?raw=true)
 
 计算公式：设格子的单位长度为D
 ```lua
@@ -18,7 +18,7 @@ tags: [A*,曼哈顿距离,欧几里得距离,对角线距离]
 
 ##### 欧几里得距离
 图形中允许朝任何方向移动
- ![oujilide.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Astar/oujilide.png?raw=true)
+ * ![oujilide.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Astar/oujilide.png?raw=true)
 
 计算公式：根据勾股定理求斜边。设格子的单位长度为D
 ```lua
@@ -31,7 +31,7 @@ Dsqrt(dxdx+dy*dy)
 
 ##### 对角线距离
 图形中允许朝八个方向移动
- ![duijiaoxian.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Astar/duijiaoxian.png?raw=true)
+ * ![duijiaoxian.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Astar/duijiaoxian.png?raw=true)
 
 计算公式：设格子的单位长度为D，那么斜向移动一单位距离，根据勾股定理，求腰为D的等腰直角三角形的斜边，即√2D。
 ```lua
