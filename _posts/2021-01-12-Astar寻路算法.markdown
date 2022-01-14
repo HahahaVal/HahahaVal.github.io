@@ -55,19 +55,30 @@ f(n)=g(n)+h(n)
  节点的状态：open（待处理），close（已处理），unknown（初始）
  前置节点指针：parent
  
- 算法步骤：
+算法步骤：
  * find_path_init：初始化open_list，并将起点加入open_list中
  * find_path_step：
    * 取出open_list中f值最小的节点node，设置状态为close
    * 获取并遍历节点node的邻居节点（4/8方向），邻居节点必须为可走
-     * 若邻居节点状态为unknown，则计算邻居节点的g，f并设置parent指针为node，将邻居节点加入到open_list中
+     * 若邻居节点状态为unknown，则计算邻居节点的g值和f值，并设置parent指针为node，将邻居节点加入到open_list中
      * 若邻居节点状态为open，根据node的g+d得到newg，当newg<邻居节点的g时，设置parent指针为node
    * 循环find_path_step的操作，直到open_list为空或者node等于终点。
  * find_path_finish：搜到终点后通过parent指针，便能从终点一步步回溯通过的路径点。
 
 优化思路：
  * open_list需要频繁加入节点，并且每次都需要取出最小值，可以使用最小堆实现。
- * 传统的有close_list的实现，可以使用节点的状态变量去判断
-
+ 
+业务需求：
+ * 业务只允许4方向移动，在寻找邻居节点的时候，只需要判定上下左右的节点。
+ * 业务允许8方向移动，在寻找邻居节点的时候，除了需要判定上下左右节点，若当前节点往斜边节点的方向存在任意一个可走节点，则斜边节点也需要判定。
+   * 下图中虽然斜边节点可走，但实际上是不可走的
+   * ![fff010c10c7d8c18e0c0bc19063234d3.png](en-resource://database/1888:1)
+   * 下图中这种斜边节点才可走
+   * ![fff010c10c7d8c18e0c0bc19063234d3.png](en-resource://database/1888:1)
+   * 估算公式需要换成对角线距离，估算公式会影响路线的最优解。[寻路演算](https://qiao.github.io/PathFinding.js/visual/)
+   * 曼哈顿距离：
+   * ![a092f31f8b31c4040a6a87b840f2bc8e.png](en-resource://database/1890:1)
+   * 欧几里得距离：
+   * ![ba8674d7a7fa6f5ee33215e8fecd6e7b.png](en-resource://database/1892:1)
 
 
