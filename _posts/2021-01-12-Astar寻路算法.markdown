@@ -72,13 +72,13 @@ f(n)=g(n)+h(n)
  * 业务只允许4方向移动，在寻找邻居节点的时候，只需要判定上下左右的节点。
  * 业务允许8方向移动，在寻找邻居节点的时候，除了需要判定上下左右节点，若当前节点往斜边节点的方向存在任意一个可走节点，则斜边节点也需要判定。
    * 下图中虽然斜边节点可走，但实际上是不可走的
-   * ![fff010c10c7d8c18e0c0bc19063234d3.png](en-resource://database/1888:1)
+   * ![diagonal1.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Astar/diagonal1.png?raw=true)
    * 下图中这种斜边节点才可走
-   * ![fff010c10c7d8c18e0c0bc19063234d3.png](en-resource://database/1888:1)
+   * ![diagonal2.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Astar/diagonal2.png?raw=true)
    * 估算公式需要换成对角线距离，估算公式会影响路线的最优解。[寻路演算](https://qiao.github.io/PathFinding.js/visual/)
    * 曼哈顿距离：
-   * ![a092f31f8b31c4040a6a87b840f2bc8e.png](en-resource://database/1890:1)
+   * ![formula1.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Astar/formula1.png?raw=true)
    * 欧几里得距离：
-   * ![ba8674d7a7fa6f5ee33215e8fecd6e7b.png](en-resource://database/1892:1)
+   * ![ba8674d7a7fa6f5ee33215e8fecd6e7b.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Astar/formula2.png?raw=true)
 
 
