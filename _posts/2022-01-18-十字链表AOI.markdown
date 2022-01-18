@@ -1,0 +1,34 @@
+---
+title: 十字链表AOI
+date: 2022-01-18 17:40:20 +/-TTTT
+categories: [场景]
+tags: [十字链表,AOI]
+---
+
+##### 十字链表
+根据2d地图坐标系将其分成x轴和y轴两个双向链表，如果是3d地图，则需要多维护一条代表高度的双向链表。对象按照坐标值从小到大相应的排列在相应的坐标轴上面。
+ * ![crosslist.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/%E5%8D%81%E5%AD%97%E9%93%BE%E8%A1%A8/crosslist.png?raw=true)
+
+* * *
+
+##### 对象进入
+新增的对象需要根据x坐标和y坐标，遍历对应的链表并找到合适的位置插入。
+ * ![enter.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/%E5%8D%81%E5%AD%97%E9%93%BE%E8%A1%A8/enter.png?raw=true)
+
+* * *
+
+##### 对象移动
+对象移动后若只改变x坐标，则只调整x轴链表，若只改变y轴坐标，则只调整y轴链表。根据移动后的坐标找到合适的位置并调整链表节点指针的指向。
+ * ![move.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/%E5%8D%81%E5%AD%97%E9%93%BE%E8%A1%A8/move.png?raw=true)
+
+* * *
+
+##### 对象离开
+对象离开则将链表中的对应节点断开即可
+ * ![leave.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/%E5%8D%81%E5%AD%97%E9%93%BE%E8%A1%A8/leave.png?raw=true)
+
+* * *
+
+##### 优化
+ * 每次新增对象，都需要遍历对应的链表找到对应的位置插入，此处可以通过快慢指针加快遍历，快指针每次移动n个位置，直到大于新增对象的坐标值，则慢指针开始往快指针位置逐个移动，直到找到合适的位置。否则插入到链表的尾部。
+ * aoi库只承担计算，在lua层的对象存储关注列表和被关注列表，业务相关的逻辑依赖这两个列表数据处理。aoi库必须固定最大可视范围，例如坐标系+/-3，在对象进入，移动，离开时作为遍历xy链表的范围，判定若进入视野或者离开视野则回调通知lua层的对象去处理。
