@@ -1,0 +1,73 @@
+---
+title: Jps寻路算法
+date: 2022-01-17 10:40:20 +/-TTTT
+categories: [寻路]
+tags: [Jps,跳点搜索,强迫邻居]
+---
+
+##### Jps跳点搜索算法
+ * Astar算法在搜索过程中需要把所有的邻居都检查一遍，并将其可走的节点加入到open_list中。
+ * Jps算法搜索过程中只需要检查必要的邻居，将其满足条件的跳点加入到open_list中。
+
+##### 强迫邻居
+节点 n 的8个邻居中有障碍，且 n  的父节点 p 经过n 到达 x 的距离代价比不经过 n 到达 x 的任意路径的距离代价小，则称 x 是 n 的强迫邻居。
+ * ![force_neighbor.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Jps/force_neighbor.png?raw=true)
+
+##### 筛选邻居节点
+只需要判定必要的邻居节点是否可走
+ * 当前节点n为起点：除了上下左右节点，若当前节点往斜边节点的方向存在任意一个可走节点，则斜边节点也需要判定。
+ * 当前节点n与其父节点p的方向向量为斜向：判定斜向分解的x轴和y轴的下个节点，若x轴或y轴的下个节点任意一个可走，则斜向节点也需要判定，若存在强迫邻居节点也需要判定。
+  * ![dneighbor.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Jps/dneighbor.png?raw=true)
+  *  当前节点n与其父节点p的方向向量为x轴：判定x轴的下个节点是否可走，若存在强迫邻居节点也需要判定。
+  * ![xneighbor.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Jps/xneighbor.png?raw=true)
+  * 当前节点n与其父节点p的方向向量为y轴：判定y轴的下个节点是否可走，若存在强迫邻居节点也需要判定。
+  * ![yneighbor.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Jps/yneighbor.png?raw=true)
+ 
+ ##### 筛选跳点
+ 从筛选过的邻居节点中再次筛选出跳点（必须为有效可走节点）加入到open_list中
+ * 邻居节点j与当前节点n的方向向量是x轴或者y轴：沿着方向向量逐个节点搜索，直到返回。
+   * 若满足以下两点则返回有效节点：
+     * 节点j至少有一个强迫邻居节点x
+     * 节点j为终点
+   * 若节点j的下一个节点不可走，则返回无效节点
+   * ![xjump.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Jps/xjump.png?raw=true)
+   * ![yjump.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Jps/yjump.png?raw=true)
+ * 邻居节点j与当前节点n的方向向量是斜向：将斜向向量拆解成x轴和y轴，沿着斜向向量逐个节点搜索，直到返回。
+   * 若满足以下条件则返回有效节点：
+     * 节点j为终点。
+     * 节点j至少有一个强迫邻居x，则返回有效节点。
+     * 若沿着x轴逐个搜索后返回有效节点，则返回有效节点；若沿着y轴逐个搜索后返回有效节点，则返回有效节点。
+   * 若x轴或y轴的下一个节点都不可走，或者斜向的下一个节点不可走，则返回无效节点。
+   * ![djump.png](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/Jps/djump.png?raw=true)
+
+##### 算法步骤
+ * find_path_init：初始化open_list，并将起点加入open_list中
+ * find_path_step：
+   * 取出open_list中f值最小的节点node，设置状态为close。
+   * 筛选并遍历节点node的邻居节点，再次筛选有效跳点进入open_list的判定。
+     * 若跳点状态为unknown，则计算跳点的g值和f值，并设置parent指针为node，将跳点加入到open_list中
+     * 若跳点状态为open，根据node的g+d得到newg，当newg<跳点的g时，设置parent指针为node
+   * 循环find_path_step的操作，直到open_list为空或者node等于终点。
+ * find_path_finish：搜到终点后通过parent指针，便能从终点一步步回溯通过的路径点。
+
+##### 优化处理
+ * 地图数据预处理：先对地图每个节点进行跳点判断，找出所有主要跳点
+
+
+
+
+
+ 
+
+   
+
+
+
+   
+   
+   
+
+
+  
+  
+
