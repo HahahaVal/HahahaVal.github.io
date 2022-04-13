@@ -9,7 +9,7 @@ tags: [战斗,ATB,技能,Buff]
  * 玩家所在agent服务发起战斗请求，获取动态的战斗服务，由战斗池服务根据唯一key分配一个相对空闲的战斗服务返回
  * 玩家所在agent服务注册到该战斗服务中，在战斗服务中创建playerObj，并与agent的玩家对象绑定，战斗的协议由agent服务转发到战斗服务处理
  * agent构造战斗所需要的数据传递到战斗服，由战斗服根据类型创建战斗对象和实体对象
- * 战斗结束后，通知agent服务战斗结果，释放战斗池服务的唯一key，取消agent服务到战斗服的注册，解除战斗服playerObj与agent玩家对象的绑定，并移除战斗服务中的playerObj
+ * 战斗结束后，通知agent服务战斗结果，释放战斗池服务的唯一key，取消agent服务到战斗服的注册，移除战斗服务中的playerObj，并移除战斗对象
  * ![battleProces](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/ATB%E5%9B%9E%E5%90%88%E5%88%B6%E6%88%98%E6%96%97/1.png?raw=true)
  
 * * *
