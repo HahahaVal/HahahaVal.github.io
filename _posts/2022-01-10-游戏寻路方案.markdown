@@ -16,6 +16,10 @@ tags: [寻路方案]
  * 服务端是可以分别站在落差比较大的两个相邻格子上（高度图上）的，但是可走图上是标识为不可走的格子，所以开始的时候判断一下起始点和终点，如果是不可走的位置则需要判定一下周围最近可走格为新的寻路起始点或终点
  * ![grid](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/%E5%AF%BB%E8%B7%AF%E6%96%B9%E6%A1%88/grid.png?raw=true)
 
+优化：
+ * 因为网格是以一个格子为单位，因此会以红色那条路线移动，实际上当AB中间不存在障碍物时，应该以黑色的路线移动会更自然，因此在寻路前先判断两点之间是否有障碍物，若两点之间无障碍则无需寻路。
+ * ![barrier](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/%E5%AF%BB%E8%B7%AF%E6%96%B9%E6%A1%88/barrier.png?raw=true)
+
 * * *
 
 ##### WayPoint
