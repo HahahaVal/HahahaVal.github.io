@@ -65,7 +65,7 @@ end
  
  * * *
  
- ##### 技能的实现
+##### 技能的实现
 技能分为主动技能和被动技能。主动技能由玩家下达指令释放或者执行AI行为树释放，而被动技能则是在状态机特定的状态处理函数中，每个实体根据各自的被动行为树Id执行一遍行为树逻辑，从而决定是否释放被动技能，例如：
  * ![skill](https://github.com/HahahaVal/HahahaVal.github.io/blob/main/_posts/src/ATB%E5%9B%9E%E5%90%88%E5%88%B6%E6%88%98%E6%96%97/2.png?raw=true)
 
